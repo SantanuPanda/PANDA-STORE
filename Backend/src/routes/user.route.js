@@ -1,5 +1,5 @@
 const express=require('express');
-const { loginUser, registerUser, verifyOtp, getUserProfile, logoutUser,adminLogin,updateUserProfile } = require('../controller/user.controller');
+const { loginUser, registerUser, getUserProfile, logoutUser, adminLogin, updateUserProfile } = require('../controller/user.controller');
 const { validateRegistration, validateLogin } = require('../middleware/validation.middleware');
 const router=express.Router();
 const multer=require('multer');
@@ -12,7 +12,6 @@ const upload = multer({
 
 router.post('/login',validateLogin,loginUser);
 router.post('/register',validateRegistration,registerUser);
-router.post('/verify-otp',verifyOtp);
 router.post('/update-profile',upload.single('photo'),updateUserProfile);
 router.get('/profile',getUserProfile);
 router.post('/logout',logoutUser);

@@ -1,10 +1,8 @@
 
 const UserModel = require("../models/user.model");
-
 const authMiddleware = require("../middleware/auth.middleware");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const SendMail = require("../utils/email");
 const { uploadToCloudinary } = require('../config/uploadCloudinary');
 require("dotenv").config();
 
@@ -66,7 +64,7 @@ const loginUser = async (req, res) => {
 };
 
 
-//Register User — Step 1: Send OTP (creates unverified user in DB)
+//Register User — Direct registration (no OTP)
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -74,7 +72,7 @@ const registerUser = async (req, res) => {
 
     const existingUser = await UserModel.findOne({ email });
 
-    if (existingUser && existingUser.isverified) {
+    if (existingUser) {
       return res.json({
         success: false,
         message: "User already exists with this email"
@@ -84,100 +82,43 @@ const registerUser = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate a 6-digit OTP valid for 10 minutes
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    // Create user directly
+    const newUser = await UserModel.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
-    // Save/update unverified user directly in UserModel
-    await UserModel.findOneAndUpdate(
-      { email },
-      { name, password: hashedPassword, otp, otpExpiry, isverified: false },
-      { upsert: true, new: true }
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
-    // Send OTP to user's email
-    await SendMail(email, otp);
-
-    res.json({
-      success: true,
-      message: "OTP sent to your email. Please verify to complete registration."
-    });
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        success: true,
+        message: "Account created successfully!",
+        token,
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+        },
+      });
 
   } catch (error) {
     console.error("❌ Register error:", error.message);
     res.json({
       success: false,
-      message: "Error sending OTP: " + error.message,
-    });
-  }
-};
-
-
-//Register User — Step 2: Verify OTP and activate user
-const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
-
-  try {
-
-    const user = await UserModel.findOne({ email });
-
-    if (!user || user.isverified) {
-      return res.json({
-        success: false,
-        message: "No pending registration found. Please register again."
-      });
-    }
-
-    // Check OTP expiry
-    if (!user.otpExpiry || Date.now() > new Date(user.otpExpiry).getTime()) {
-      return res.json({
-        success: false,
-        message: "OTP has expired. Please register again."
-      });
-    }
-
-    // Check OTP value
-    if (user.otp !== otp) {
-      return res.json({
-        success: false,
-        message: "Invalid OTP. Please try again."
-      });
-    }
-
-    // OTP correct — mark user as verified and clear OTP fields
-    await UserModel.findByIdAndUpdate(user._id, {
-      isverified: true,
-      otp: null,
-      otpExpiry: null
-    });
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    }).json({
-      success: true,
-      message: "Email verified. User registered successfully.",
-      token,
-      newUser: {
-        _id: user._id,
-        name: user.name,
-        email: user.email
-      }
-    });
-
-  } catch (error) {
-    res.json({
-      success: false,
-      message: "Error verifying OTP",
-      error: error.message
+      message: "Error registering user",
+      error: error.message,
     });
   }
 };
@@ -305,7 +246,6 @@ const logoutUser = async (req, res) => {
 module.exports={
   loginUser,
   registerUser,
-  verifyOtp,
   getUserProfile,
   updateUserProfile,
   logoutUser,

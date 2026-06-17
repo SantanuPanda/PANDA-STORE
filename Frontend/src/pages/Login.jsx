@@ -15,7 +15,6 @@ const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -25,22 +24,18 @@ const Login = () => {
     try {
       if (currentState === "Sign Up") {
         const res = await axios.post(`${BACKEND_URL}/api/users/register`, { name, email, password }, { withCredentials: true });
-        if (res.data.success) { toast.success(res.data.message); setCurrentState("Verify OTP"); }
-        else toast.error(res.data.message);
-      } else if (currentState === "Verify OTP") {
-        const res = await axios.post(`${BACKEND_URL}/api/users/verify-otp`, { email, otp }, { withCredentials: true });
         if (res.data.success) {
           toast.success(res.data.message);
           setToken(res.data.token);
           localStorage.setItem("token", res.data.token);
-        } else toast.error(res.data.message || "Invalid OTP");
+        } else toast.error(res.data.message);
       } else {
         const res = await axios.post(`${BACKEND_URL}/api/users/login`, { email, password }, { withCredentials: true });
         if (res.data.success) {
           toast.success(res.data.message);
           setToken(res.data.token);
           localStorage.setItem("token", res.data.token);
-        }
+        } else toast.error(res.data.message || "Invalid credentials");
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
@@ -55,13 +50,12 @@ const Login = () => {
 
   const switchState = () => {
     setCurrentState(currentState === "Login" ? "Sign Up" : "Login");
-    setName(""); setEmail(""); setPassword(""); setOtp("");
+    setName(""); setEmail(""); setPassword("");
   };
 
   const titles = {
-    "Login": { heading: "Welcome back", sub: "Sign in to your Forever account" },
-    "Sign Up": { heading: "Create account", sub: "Join Forever and start shopping" },
-    "Verify OTP": { heading: "Check your email", sub: `We sent a 6-digit code to ${email}` },
+    "Login": { heading: "Welcome back", sub: "Sign in to your Panda Store account" },
+    "Sign Up": { heading: "Create account", sub: "Join Panda Store and start shopping" },
   };
 
   return (
@@ -118,126 +112,88 @@ const Login = () => {
             <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
 
               <AnimatePresence mode="wait">
-
-                {/* OTP screen */}
-                {currentState === "Verify OTP" && (
-                  <motion.div
-                    key="otp"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.35 }}
-                    className="flex flex-col gap-3.5"
-                  >
-                    {/* OTP boxes */}
-                    <div>
-                      <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-2">
-                        6-Digit Code
-                      </label>
-                      <input
-                        type="text"
-                        value={otp}
-                        onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                        placeholder="• • • • • •"
-                        maxLength={6}
-                        required
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-center text-xl tracking-[0.5em] font-bold text-gray-900 outline-none focus:border-gray-900 focus:bg-white transition-all placeholder-gray-200"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentState("Sign Up")}
-                      className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer text-left flex items-center gap-1"
-                    >
-                      ← Back to Sign Up
-                    </button>
-                  </motion.div>
-                )}
-
                 {/* Login / Sign Up fields */}
-                {currentState !== "Verify OTP" && (
-                  <motion.div
-                    key={currentState + "-fields"}
-                    initial={{ opacity: 0, x: currentState === "Sign Up" ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: currentState === "Sign Up" ? -20 : 20 }}
-                    transition={{ duration: 0.35 }}
-                    className="flex flex-col gap-3.5"
-                  >
-                    <AnimatePresence>
-                      {currentState === "Sign Up" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Full Name</label>
-                          <input
-                            type="text"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                            placeholder="Alex Johnson"
-                            required
-                            className={inputClass}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <div>
-                      <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Email Address</label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        required
-                        className={inputClass}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Password</label>
-                      <div className="relative">
+                <motion.div
+                  key={currentState + "-fields"}
+                  initial={{ opacity: 0, x: currentState === "Sign Up" ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: currentState === "Sign Up" ? -20 : 20 }}
+                  transition={{ duration: 0.35 }}
+                  className="flex flex-col gap-3.5"
+                >
+                  <AnimatePresence>
+                    {currentState === "Sign Up" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Full Name</label>
                         <input
-                          type={showPass ? "text" : "password"}
-                          value={password}
-                          onChange={e => setPassword(e.target.value)}
-                          placeholder="••••••••"
+                          type="text"
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          placeholder="Alex Johnson"
                           required
-                          className={inputClass + " pr-10"}
+                          className={inputClass}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPass(p => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors cursor-pointer"
-                        >
-                          {showPass ? (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                              <line x1="1" y1="1" x2="23" y2="23" />
-                            </svg>
-                          ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                              <circle cx="12" cy="12" r="3" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {currentState === "Login" && (
-                      <div className="flex justify-between items-center -mt-1">
-                        <span />
-                        <button type="button" className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
-                          Forgot password?
-                        </button>
-                      </div>
+                      </motion.div>
                     )}
-                  </motion.div>
-                )}
+                  </AnimatePresence>
+
+                  <div>
+                    <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Email Address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] tracking-[0.18em] uppercase font-semibold text-gray-400 mb-1.5">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPass ? "text" : "password"}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                        className={inputClass + " pr-10"}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPass(p => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors cursor-pointer"
+                      >
+                        {showPass ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                            <line x1="1" y1="1" x2="23" y2="23" />
+                          </svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {currentState === "Login" && (
+                    <div className="flex justify-between items-center -mt-1">
+                      <span />
+                      <button type="button" className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
               </AnimatePresence>
 
               {/* Submit */}
@@ -255,11 +211,11 @@ const Login = () => {
                       className="flex items-center justify-center gap-2">
                       <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
                         className="block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full" />
-                      {currentState === "Verify OTP" ? "Verifying..." : currentState === "Sign Up" ? "Creating..." : "Signing in..."}
+                      {currentState === "Sign Up" ? "Creating..." : "Signing in..."}
                     </motion.span>
                   ) : (
                     <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      {currentState === "Verify OTP" ? "Verify Code" : currentState === "Sign Up" ? "Create Account" : "Sign In"}
+                      {currentState === "Sign Up" ? "Create Account" : "Sign In"}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -268,24 +224,22 @@ const Login = () => {
             </form>
 
             {/* Switch state */}
-            {currentState !== "Verify OTP" && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center text-xs text-gray-400 mt-5"
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center text-xs text-gray-400 mt-5"
+            >
+              {currentState === "Login" ? "Don't have an account?" : "Already have an account?"}
+              {" "}
+              <button
+                type="button"
+                onClick={switchState}
+                className="text-gray-900 font-semibold hover:underline cursor-pointer"
               >
-                {currentState === "Login" ? "Don't have an account?" : "Already have an account?"}
-                {" "}
-                <button
-                  type="button"
-                  onClick={switchState}
-                  className="text-gray-900 font-semibold hover:underline cursor-pointer"
-                >
-                  {currentState === "Login" ? "Sign Up" : "Sign In"}
-                </button>
-              </motion.p>
-            )}
+                {currentState === "Login" ? "Sign Up" : "Sign In"}
+              </button>
+            </motion.p>
           </div>
         </div>
 
