@@ -13,7 +13,7 @@ const app=express();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: ['https://panda-store-1.onrender.com', 'http://localhost:5174'],
+  origin: ['https://panda-store-1.onrender.com', 'https://panda-store-admin.onrender.com'],
   credentials: true
 }));
 app.use(express.json());
