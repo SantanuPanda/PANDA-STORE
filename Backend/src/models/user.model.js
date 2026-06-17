@@ -7,8 +7,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, select: false },
   isverified: { type: Boolean, default: false },
   photo: { type: String, default: "" },
-  cartData:{type:Object,default:{}},
-},{minimize: false,timestamps:true});
+  cartData: { type: Object, default: {} },
+  otp: { type: String, default: null },
+  otpExpiry: { type: Date, default: null },
+},{minimize: false, timestamps: true});
 
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
 

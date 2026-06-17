@@ -91,7 +91,7 @@ const Login = () => {
                 className="inline-flex items-center gap-2 bg-white/10 text-white/50 text-[9px] tracking-[0.22em] uppercase px-3 py-1 rounded-full mb-4 border border-white/10"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] animate-pulse" />
-                Forever Store
+                Panda Store
               </motion.p>
 
               <AnimatePresence mode="wait">
