@@ -32,11 +32,9 @@ const validateRegistration = [
 
 const validateLogin = [
   body("email")
-    .matches(emailRegex)
-    .withMessage("Please enter a valid email address")
     .isEmail()
     .withMessage("Valid email is required")
-    .normalizeEmail(),
+    .trim(),
 
   body("password").notEmpty().withMessage("Password is required"),
   validate,
