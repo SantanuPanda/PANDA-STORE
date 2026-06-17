@@ -2,22 +2,16 @@ const nodemailer = require("nodemailer");
 
 function getTransporter() {
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    family: 4, // Force IPv4 (Render doesn't support IPv6)
+    service: "gmail",
     auth: {
       user: process.env.APP_USERNAME,
       pass: process.env.APP_PASSWORD,
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
   });
 }
 
 async function SendMail(to, otp) {
-  console.log("📧 Attempting to send OTP email to:", to);
+  console.log("📧 Sending OTP to:", to);
   console.log("📧 APP_USERNAME:", process.env.APP_USERNAME ? "✅ Set" : "❌ NOT SET");
   console.log("📧 APP_PASSWORD:", process.env.APP_PASSWORD ? "✅ Set" : "❌ NOT SET");
 
@@ -64,10 +58,9 @@ async function SendMail(to, otp) {
       `,
     });
 
-    console.log("✅ OTP email sent successfully to:", to);
+    console.log("✅ OTP sent successfully to:", to);
   } catch (error) {
-    console.error("❌ Failed to send OTP email:", error.message);
-    console.error("❌ Error code:", error.code);
+    console.error("❌ Email error:", error.message);
     throw error;
   }
 }

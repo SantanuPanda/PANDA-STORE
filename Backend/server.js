@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 require('dotenv').config();
 const app=require('./src/app');
 const ConnectCloudinary=require('./src/config/cloudinary');
