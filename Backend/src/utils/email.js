@@ -4,12 +4,13 @@ function getTransporter() {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // use STARTTLS
+    secure: false,
+    family: 4, // Force IPv4 (Render doesn't support IPv6)
     auth: {
       user: process.env.APP_USERNAME,
       pass: process.env.APP_PASSWORD,
     },
-    connectionTimeout: 10000, // 10 seconds
+    connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
   });
