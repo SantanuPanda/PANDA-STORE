@@ -104,10 +104,10 @@ const registerUser = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("❌ Register error:", error.message);
     res.json({
       success: false,
-      message: "Error sending OTP",
-      error: error.message
+      message: "Error sending OTP: " + error.message,
     });
   }
 };
