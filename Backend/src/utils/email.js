@@ -1,9 +1,9 @@
-require('dotenv').config();
-const nodemailer=require('nodemailer');
+require("dotenv").config();
+const nodemailer = require("nodemailer");
 
 // Create a test account or replace with real credentials.
 const transporter = nodemailer.createTransport({
-  service:'gmail',
+  service: "gmail",
   port: 465,
   secure: true, // true for 465, false for other ports
   auth: {
@@ -12,65 +12,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function SendMail(to, otp) {
-  await transporter.sendMail({
-    from: `"Support" <${process.env.APP_USERNAME}>`,
-    to,
-    subject: "🔐 Verify Your Email",
-    html: `
-      <div style="
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f4f7fb;
-        padding: 40px 20px;
-        text-align: center;
-      ">
-        <div style="
-          max-width: 500px;
-          margin: 0 auto;
-          background: #ffffff;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-          padding: 30px;
-        ">
-          <h2 style="color: #2563eb; margin-bottom: 10px;">Vingo Verification</h2>
-          <p style="font-size: 15px; color: #555; margin-bottom: 25px;">
-            Hello 👋,<br />
-            Please use the following One-Time Password (OTP) to verify your account.
-          </p>
-
-          <div style="
-            display: inline-block;
-            background: linear-gradient(135deg, #2563eb, #9333ea);
-            color: #ffffff;
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 6px;
-            border-radius: 10px;
-            padding: 15px 30px;
-            margin: 10px 0;
-          ">
-            ${otp}
-          </div>
-
-          <p style="font-size: 14px; color: #666; margin-top: 25px;">
-            This OTP is valid for <strong>10 minutes</strong>. Please do not share it with anyone.
-          </p>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-
-          <p style="font-size: 13px; color: #999;">
-            If you didn’t request this, please ignore this email.<br />
-            Need help? Contact us at
-            <a href="mailto:support@vingo.com" style="color: #2563eb; text-decoration: none;">support@vingo.com</a>
-          </p>
-        </div>
-
-        <p style="font-size: 12px; color: #aaa; margin-top: 20px;">
-          © ${new Date().getFullYear()} Vingo Technologies. All rights reserved.
-        </p>
-      </div>
-    `,
-  });
-}
+async function SendMail(to, otp) { await transporter.sendMail({ from: `"Panda Store" <${process.env.APP_USERNAME}>`, to, subject: "🐼 Panda Store - Email Verification OTP", html: ` <div style="font-family: Arial, sans-serif; background:#f8fafc; padding:40px 20px;"> <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.08);"> <div style="background:linear-gradient(135deg,#111827,#374151); padding:30px; text-align:center;"> <h1 style="color:#ffffff; margin:0; font-size:32px;"> 🐼 Panda Store </h1> <p style="color:#d1d5db; margin-top:10px; font-size:14px;"> Your Trusted Online Shopping Destination </p> </div> <div style="padding:40px 30px;"> <h2 style="color:#111827; margin-bottom:15px;"> Verify Your Account </h2> <p style="color:#4b5563; line-height:1.7;"> Hello 👋,<br><br> Thank you for joining <strong>Panda Store</strong>. Use the OTP below to verify your account and continue shopping. </p> <div style="text-align:center; margin:35px 0;"> <span style=" display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444); color:white; font-size:34px; font-weight:bold; letter-spacing:8px; padding:18px 35px; border-radius:12px; "> ${otp} </span> </div> <p style="color:#6b7280; text-align:center;"> This OTP is valid for <strong>10 minutes</strong>. </p> <div style=" background:#fef3c7; border-left:4px solid #f59e0b; padding:15px; border-radius:8px; margin-top:25px; "> <strong>Security Tip:</strong> Never share your OTP with anyone. </div> <hr style="margin:35px 0; border:none; border-top:1px solid #e5e7eb;" /> <p style="color:#6b7280; font-size:14px;"> If you didn't request this verification, you can safely ignore this email. </p> </div> <div style=" background:#f9fafb; padding:20px; text-align:center; border-top:1px solid #e5e7eb; "> <p style="margin:0; color:#6b7280; font-size:13px;"> Need help? Contact us at <a href="mailto:support@pandastore.com" style="color:#2563eb; text-decoration:none;"> support@pandastore.com </a> </p> <p style="margin-top:10px; color:#9ca3af; font-size:12px;"> © ${new Date().getFullYear()} Panda Store. All Rights Reserved. </p> </div> </div> </div> `, }); }
 
 module.exports = SendMail;
