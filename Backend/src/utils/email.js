@@ -1,14 +1,7 @@
 const nodemailer = require("nodemailer");
-
-function getTransporter() {
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.APP_USERNAME,
-      pass: process.env.APP_PASSWORD,
-    },
-  });
-}
+const dns = require("dns");
+const { promisify } = require("util");
+const resolve4 = promisify(dns.resolve4);
 
 async function SendMail(to, otp) {
   console.log("📧 Sending OTP to:", to);
@@ -16,7 +9,22 @@ async function SendMail(to, otp) {
   console.log("📧 APP_PASSWORD:", process.env.APP_PASSWORD ? "✅ Set" : "❌ NOT SET");
 
   try {
-    const transporter = getTransporter();
+    // Manually resolve Gmail SMTP to IPv4 address
+    const addresses = await resolve4("smtp.gmail.com");
+    console.log("📧 Resolved smtp.gmail.com to IPv4:", addresses[0]);
+
+    const transporter = nodemailer.createTransport({
+      host: addresses[0], // Use IPv4 IP directly (e.g. 142.250.x.x)
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.APP_USERNAME,
+        pass: process.env.APP_PASSWORD,
+      },
+      tls: {
+        servername: "smtp.gmail.com", // Required for TLS certificate validation
+      },
+    });
 
     await transporter.sendMail({
       from: `"Panda Store" <${process.env.APP_USERNAME}>`,
