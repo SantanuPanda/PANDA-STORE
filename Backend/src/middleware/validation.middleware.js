@@ -8,21 +8,19 @@ async function validate(req, res, next) {
   next();
 }
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const validateRegistration = [
   body("email")
-    .matches(emailRegex)
-    .withMessage("Please enter a valid email address")
     .isEmail()
     .withMessage("Valid email is required")
-    .normalizeEmail(),
+    .trim(),
 
   body("name")
     .notEmpty()
     .withMessage("Name is required")
-    .isLength({ min: 4 })
-    .withMessage("Name must be at least 4 characters long"),
+    .isLength({ min: 2 })
+    .withMessage("Name must be at least 2 characters long")
+    .trim(),
 
   body("password")
     .notEmpty()
