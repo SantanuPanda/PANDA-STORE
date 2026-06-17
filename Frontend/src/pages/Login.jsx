@@ -30,7 +30,7 @@ const Login = () => {
           localStorage.setItem("token", res.data.token);
         } else toast.error(res.data.message);
       } else {
-        const res = await axios.post(`${BACKEND_URL}/api/users/login`, { email, password }, { withCredentials: true });
+        const res = await axios.post(`${BACKEND_URL}/api/users/login-user`, { email, password }, { withCredentials: true });
         if (res.data.success) {
           toast.success(res.data.message);
           setToken(res.data.token);

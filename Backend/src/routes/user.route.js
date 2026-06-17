@@ -10,7 +10,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
 });
 
-router.post('/login',validateLogin,loginUser);
+router.post('/login-user',validateLogin,loginUser);
 router.post('/register',validateRegistration,registerUser);
 router.post('/update-profile',upload.single('photo'),updateUserProfile);
 router.get('/profile',getUserProfile);
