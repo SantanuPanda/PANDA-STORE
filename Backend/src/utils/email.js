@@ -1,22 +1,24 @@
 const nodemailer = require("nodemailer");
 
-// Create transporter lazily (inside function) so env vars are guaranteed to be loaded
 function getTransporter() {
   return nodemailer.createTransport({
-    service: "gmail",
-    port: 465,
-    secure: true,
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // use STARTTLS
     auth: {
       user: process.env.APP_USERNAME,
       pass: process.env.APP_PASSWORD,
     },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 }
 
 async function SendMail(to, otp) {
   console.log("📧 Attempting to send OTP email to:", to);
-  console.log("📧 Using APP_USERNAME:", process.env.APP_USERNAME ? "✅ Set" : "❌ NOT SET");
-  console.log("📧 Using APP_PASSWORD:", process.env.APP_PASSWORD ? "✅ Set" : "❌ NOT SET");
+  console.log("📧 APP_USERNAME:", process.env.APP_USERNAME ? "✅ Set" : "❌ NOT SET");
+  console.log("📧 APP_PASSWORD:", process.env.APP_PASSWORD ? "✅ Set" : "❌ NOT SET");
 
   try {
     const transporter = getTransporter();
@@ -64,8 +66,8 @@ async function SendMail(to, otp) {
     console.log("✅ OTP email sent successfully to:", to);
   } catch (error) {
     console.error("❌ Failed to send OTP email:", error.message);
-    console.error("❌ Full error:", error);
-    throw error; // Re-throw so controller catches it
+    console.error("❌ Error code:", error.code);
+    throw error;
   }
 }
 
